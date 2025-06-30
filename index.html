@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arctic | Roblox Executor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #00b4d8;
+            --secondary: #0096c7;
+            --dark: #0a0a12;
+            --darker: #000008;
+            --light: #e0e0ff;
+            --danger: #ff3860;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: var(--darker);
+            color: var(--light);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            overflow: hidden;
+        }
+
+        .bg-particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(0, 180, 216, 0.5);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) scale(0.5);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.8;
+            }
+            90% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-100px) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            width: 100%;
+        }
+
+        header {
+            background-color: rgba(0, 0, 8, 0.85);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            z-index: 100;
+            border-bottom: 1px solid rgba(0, 180, 216, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        header.scrolled {
+            background-color: rgba(0, 0, 8, 0.95);
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            color: var(--primary);
+            font-size: 24px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            font-size: 15px;
+            opacity: 0.9;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+            opacity: 1;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            bottom: -5px;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 25px;
+            border-radius: 5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-outline {
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            background: transparent;
+        }
+
+        .btn-outline:hover {
+            background: rgba(0, 180, 216, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--darker);
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 180, 216, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 180, 216, 0.4);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(255, 56, 96, 0.3);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 56, 96, 0.4);
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 120px 0 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            max-width: 700px;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+        }
+
+        .hero h2 {
+            font-size: clamp(36px, 5vw, 52px);
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .hero p {
+            font-size: clamp(16px, 2vw, 18px);
+            line-height: 1.7;
+            opacity: 0.9;
+            max-width: 600px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .badges {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: rgba(0, 180, 216, 0.1);
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(0, 180, 216, 0.3);
+            backdrop-filter: blur(5px);
+        }
+
+        .badge i {
+            color: var(--primary);
+            font-size: 16px;
+        }
+
+        .section {
+            padding: 80px 0;
+            position: relative;
+        }
+
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(0, 180, 216, 0.05) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .section-title h2 {
+            font-size: clamp(32px, 5vw, 42px);
+            margin-bottom: 15px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .section-title p {
+            max-width: 700px;
+            margin: 0 auto;
+            opacity: 0.8;
+            line-height: 1.6;
+            font-size: clamp(16px, 2vw, 18px);
+            padding: 0 20px;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .pricing-card {
+            background: rgba(10, 10, 18, 0.7);
+            border-radius: 10px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 180, 216, 0.2);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pricing-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 180, 216, 0.15);
+            border-color: rgba(0, 180, 216, 0.4);
+        }
+
+        .pricing-card h3 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .price {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 25px;
+            color: white;
+        }
+
+        .price span {
+            font-size: 16px;
+            opacity: 0.7;
+            font-weight: normal;
+        }
+
+        .pricing-features {
+            margin-bottom: 30px;
+        }
+
+        .pricing-features li {
+            list-style: none;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0, 180, 216, 0.1);
+        }
+
+        .pricing-features li:last-child {
+            border-bottom: none;
+        }
+
+        .payment-methods {
+            margin-top: 20px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .payment-methods i {
+            margin-right: 5px;
+        }
+
+        .key-prices {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .price-table {
+            background: rgba(10, 10, 18, 0.7);
+            border-radius: 10px;
+            padding: 30px;
+            border: 1px solid rgba(0, 180, 216, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .price-table h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .price-table h3 i {
+            font-size: 24px;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0, 180, 216, 0.1);
+        }
+
+        .price-row:last-child {
+            border-bottom: none;
+        }
+
+        .price-row .duration {
+            font-weight: 600;
+        }
+
+        .price-row .cost {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .price-note {
+            margin-top: 20px;
+            font-size: 14px;
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+
+        .price-note a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .faq-item {
+            background: rgba(10, 10, 18, 0.7);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 180, 216, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .faq-question {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .faq-question:hover {
+            background: rgba(0, 180, 216, 0.1);
+        }
+
+        .faq-question i {
+            transition: all 0.3s ease;
+            color: var(--primary);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.5s ease;
+            padding: 0 20px;
+            border-top: 1px solid transparent;
+        }
+
+        .faq-item.active .faq-question {
+            background: rgba(0, 180, 216, 0.1);
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 500px;
+            padding: 20px;
+            border-top: 1px solid rgba(0, 180, 216, 0.1);
+        }
+
+        .download-card {
+            background: rgba(10, 10, 18, 0.7);
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            border: 1px solid rgba(0, 180, 216, 0.2);
+            backdrop-filter: blur(10px);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .download-card i {
+            font-size: 60px;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .download-card h3 {
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        .download-card p {
+            opacity: 0.8;
+            margin-bottom: 30px;
+            font-size: 18px;
+        }
+
+        .system-reqs {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .system-reqs h4 {
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .system-reqs ul {
+            padding-left: 20px;
+        }
+
+        .system-reqs li {
+            margin-bottom: 5px;
+        }
+
+        footer {
+            background: rgba(0, 0, 8, 0.95);
+            padding: 60px 0 20px;
+            border-top: 1px solid rgba(0, 180, 216, 0.2);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+            padding: 0 20px;
+        }
+
+        .footer-column h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .footer-links a {
+            color: var(--light);
+            opacity: 0.8;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 15px;
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(0, 180, 216, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 180, 216, 0.2);
+        }
+
+        .social-links a:hover {
+            background: var(--primary);
+            color: var(--darker);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 180, 216, 0.3);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 180, 216, 0.1);
+            opacity: 0.7;
+            font-size: 14px;
+            padding: 0 20px;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                padding: 120px 0 60px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .price-table {
+                padding: 20px;
+            }
+
+            .download-card {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-animation" id="bgAnimation"></div>
+
+    <header id="header">
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <i class="fas fa-snowflake"></i>
+                    <h1>ARCTIC</h1>
+                </div>
+
+                <div class="nav-links">
+                    <a href="#pricing">Pricing</a>
+                    <a href="#keys">Keys</a>
+                    <a href="#download">Download</a>
+                    <a href="#faq">FAQ</a>
+                </div>
+
+                <div class="nav-buttons">
+                    <a href="https://discord.gg/vwNUvM4fwg" class="btn btn-outline">Discord</a>
+                    <a href="https://discord.gg/vwNUvM4fwg" class="btn btn-primary">Buy Key</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="badges">
+                    <div class="badge">
+                        <i class="fas fa-bolt"></i>
+                        <span>97% SUNC</span>
+                    </div>
+                    <div class="badge">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>99% UNC</span>
+                    </div>
+                    <div class="badge">
+                        <i class="fas fa-star"></i>
+                        <span>LEVEL 8</span>
+                    </div>
+                </div>
+
+                <h2>ULTIMATE ROBLOX EXECUTOR</h2>
+                <p>Arctic is the most powerful and undetected Windows executor with superior stability and performance. Experience next-level exploiting with our premium features and unmatched security.</p>
+
+                <div class="hero-buttons">
+                    <a href="#download" class="btn btn-primary">Download Now</a>
+                    <a href="hhttps://discord.gg/vwNUvM4fwg" class="btn btn-outline">Join Discord</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="pricing">
+        <div class="container">
+            <div class="section-title">
+                <h2>PRICING PLANS</h2>
+                <p>Choose the plan that fits your needs. All plans include premium support and regular updates.</p>
+            </div>
+
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3>BASIC</h3>
+                    <div class="price">$5.99 <span>/month</span></div>
+                    <ul class="pricing-features">
+                        <li>All Basic Features</li>
+                     <li>Standard Support</li>
+                        <li>Basic Script Hub</li>
+                                         </ul>
+                    <a href="https://google.com/" class="btn btn-outline">Get Started</a>
+                    <div class="payment-methods">
+                        <i class="fab fa-cc-visa"></i>
+                        <i class="fab fa-cc-mastercard"></i>
+                        <i class="fab fa-cc-paypal"></i>
+                    </div>
+                </div>
+
+                <div class="pricing-card">
+                    <h3>PREMIUM</h3>
+                    <div class="price">$9.99 <span>/3 months</span></div>
+                    <ul class="pricing-features">
+                        <li>All Premium Features</li>
+                                           <li>Priority Support</li>
+                        <li>Premium Script Hub</li>
+                        <li>Regular Updates</li>
+                                          </ul>
+                    <a href="https://google.com/" class="btn btn-primary">Get Premium</a>
+                    <div class="payment-methods">
+                        <i class="fab fa-cc-visa"></i>
+                        <i class="fab fa-cc-mastercard"></i>
+                        <i class="fab fa-cc-paypal"></i>
+                    </div>
+                </div>
+
+                <div class="pricing-card">
+                    <h3>LIFETIME</h3>
+                    <div class="price">$14.99 <span>one-time</span></div>
+                    <ul class="pricing-features">
+                        <li>All Premium Features</li>
+                                             <li>VIP Support</li>
+                        <li>Premium Script Hub</li>
+                        <li>Lifetime Updates</li>
+                                          </ul>
+                    <a href="https://google.com/" class="btn btn-danger">Get Lifetime</a>
+                    <div class="payment-methods">
+                        <i class="fab fa-cc-visa"></i>
+                        <i class="fab fa-cc-mastercard"></i>
+                        <i class="fab fa-cc-paypal"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="keys">
+        <div class="container">
+            <div class="section-title">
+                <h2>INTERNAL KEY PRICES</h2>
+                <p>Special pricing available through our internal system</p>
+            </div>
+
+            <div class="key-prices">
+                <div class="price-table">
+                    <h3><i class="fab fa-paypal"></i> PayPal Prices</h3>
+                    <div class="price-row">
+                        <span class="duration">1 Week</span>
+                        <span class="cost">$2.99</span>
+                    </div>
+                    <div class="price-row">
+                        <span class="duration">1 Month</span>
+                        <span class="cost">$5.99</span>
+                    </div>
+                    <div class="price-row">
+                        <span class="duration">3 Months</span>
+                        <span class="cost">$9.99</span>
+                    </div>
+                    <div class="price-row">
+                        <span class="duration">Lifetime</span>
+                        <span class="cost">$14.99</span>
+                    </div>
+                    <div class="price-note">
+                        PayPal payments are processed securely through our payment gateway.
+                    </div>
+                </div>
+
+                <div class="price-table">
+                    <h3><i class="fas fa-coins"></i> Robux Options</h3>
+                    <div class="price-row">
+                        <span class="duration">1 Week</span>
+                        <span class="cost">500 RS</span>
+                    </div>
+                    <div class="price-row">
+                        <span class="duration">1 Month</span>
+                        <span class="cost">1000 RS</span>
+                    </div>
+                    <div class="price-row">
+                        <span class="duration">3 Months</span>
+                        <span class="cost">2500 RS</span>
+                    </div>
+                    <div class="price-row">
+                        <span class="duration">Lifetime</span>
+                        <span class="cost">5000 RS</span>
+                    </div>
+                    <div class="price-note">
+                        Robux and PayPal are the only available payment methods currently. Open a ticket in our Discord .
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="download">
+        <div class="container">
+            <div class="section-title">
+                <h2>DOWNLOAD FREE VERSION</h2>
+                <p>Get started with Arctic by downloading the latest version</p>
+            </div>
+
+            <div class="download-card">
+                <i class="fab fa-windows"></i>
+                <h3>WINDOWS VERSION</h3>
+                <p>Arctic is currently only available for Windows platforms. MacOS and mobile versions are not supported.</p>
+                <a href="https://google.com/" class="btn btn-primary">Download Arctic v3.0.0</a>
+
+                <div class="system-reqs">
+                    <h4>System Requirements:</h4>
+                    <ul>
+                        <li>Windows 10/11 64-bit</li>
+                                               <li>.NET Framework 4.8</li>
+                        <li>Internet connection for activation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="faq">
+        <div class="container">
+            <div class="section-title">
+                <h2>FREQUENTLY ASKED QUESTIONS</h2>
+                <p>Find answers to common questions about Arctic executor</p>
+            </div>
+
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Is Arctic detected by Roblox?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Arctic is semi-undetected but we still recommend using an alt accounts because roblox has been updating it's anti cheat.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How do I purchase with Robux?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Join our Discord server and open a ticket in the #support channel. Then type your desired payment method (Robux or PayPal) and plan.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What does Level 8 execution mean?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Level 8 refers to our execution environment's capability level. This means Arctic can execute complex scripts with maximum stability and minimal detection risk compared to lower-level executors.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Can I get banned for using Arctic?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>While we maintain high undetection rates, any third-party program carries some risk. We recommend using alt accounts for exploiting and avoiding obvious cheating in competitive games.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How often is Arctic updated?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>We release updates whenever Roblox patches our methods, typically within 24-48 hours of a new Roblox update. Lifetime users receive all updates automatically.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>ARCTIC</h3>
+                    <p>The most advanced Windows Roblox executor with superior stability and performance.</p>
+                    <div class="social-links">
+                        <a href="https://discord.gg/vwNUvM4fwg"><i class="fab fa-discord"></i></a>
+                        <a href="https://google.com/"><i class="fab fa-twitter"></i></a>
+                        <a href="https://google.com/"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-column">
+                    <h3>LINKS</h3>
+                    <div class="footer-links">
+                        <a href="ttps://getarctic.vercel.app#home/">Home</a>
+                        <a href="ttps://getarctic.vercel.app#Pricing/">Pricing</a>
+                        <a href="ttps://getarctic.vercel.app#Keys/">Keys</a>
+                        <a href="ttps://getarctic.vercel.app#Download/">Download</a>
+                        <a href="https://getarctic.vercel.app#faq/">FAQ</a>
+                    </div>
+                </div>
+
+                <div class="footer-column">
+                    <h3>LEGAL</h3>
+                    <div class="footer-links">
+                        <a href="https://google.com/">Terms</a>
+                        <a href="https://google.com/">Privacy</a>
+                                              <a href="https://google.com/">Disclaimer</a>
+                    </div>
+                </div>
+
+                <div class="footer-column">
+                    <h3>SUPPORT</h3>
+                    <div class="footer-links">
+                        <a href="https://discord.gg/vwNUvM4fwg">Discord</a>
+                        <a href="https://google.com/">Contact</a>
+                        <a href="https://google.com/">Status</a>
+                        <a href="https://google.com/">Documentation</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 ARCTIC EXECUTOR. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+
+        function createParticles() {
+            const bgAnimation = document.getElementById('bgAnimation');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('bg-particle');
+
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+
+                const size = Math.random() * 3 + 1;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+
+                particle.style.opacity = Math.random() * 0.5 + 0.1;
+
+                const duration = Math.random() * 20 + 10;
+                particle.style.animationDuration = `${duration}s`;
+
+                particle.style.animationDelay = `${Math.random() * 10}s`;
+
+                bgAnimation.appendChild(particle);
+            }
+        }
+
+        createParticles();
+
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        const faqItems = document.querySelectorAll('.faq-item');
+
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question');
+
+            question.addEventListener('click', () => {
+                item.classList.toggle('active');
+
+                faqItems.forEach(otherItem => {
+                    if (otherItem !== item && otherItem.classList.contains('active')) {
+                        otherItem.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+
+                    if (history.pushState) {
+                        history.pushState(null, null, targetId);
+                    } else {
+                        location.hash = targetId;
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
